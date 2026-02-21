@@ -103,6 +103,9 @@ button:focus-visible {
   padding: 2rem;
 }
 
+input, button[data-slot="select-trigger"] {
+  @apply w-fit md:w-full bg-white text-black;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

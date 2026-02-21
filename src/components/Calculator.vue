@@ -11,7 +11,6 @@ import {
   Field,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
@@ -22,14 +21,21 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+const loading = ref(false);
+
 const selectedSymbol = ref('');
 const quantity = ref(0);
 const profit = ref(0);
 const priceNow = ref(0);
 const buyPrice = ref(0);
-const loading = ref(false);
 const valueInvested = ref(0);
-const costs = ref(0);
+// const costs = ref(0);
+
+const commissionRate = ref(1.25);
+const vatRatePercentage = ref(19);
+const breakEven = ref(0);
+const minFee = ref(7437.5);
+const costs = ref(0)
 
 const fetchPrice = async (symbol: string) => {
   if (!symbol) return;
@@ -40,10 +46,8 @@ const fetchPrice = async (symbol: string) => {
     if (!response.ok) throw new Error('Stock not found');
     
     const data = await response.json();
-    console.log('Fetched data:', data);
     // Yahoo Finance returns the price in 'regularMarketPrice'
     priceNow.value = data.regularMarketPrice;
-    console.log('Price updated:', data.regularMarketPrice);
     toast.add({
       severity: 'success', // Severity options: 'success', 'info', 'warn', 'error', etc.
       summary: 'Success Message',
@@ -68,27 +72,27 @@ const calculate = () => {
   // 1. Calculate base invested value
   const totalBuy = quantity.value * buyPrice.value;
   const totalSell = quantity.value * priceNow.value;
-  valueInvested.value = Number(totalBuy.toFixed(2));
 
-  // 2. Determine Commissions (assuming 7437.5 is the minimum base fee)
-  const minFee = 7437.5;
-  const vatRate = 1.19; // 19% VAT
+  const vatRate = vatRatePercentage.value/100; // 19% VAT
   
-  let buyFee = minFee;
-  let sellFee = minFee;
+  let buyFee = minFee.value;
+  let sellFee = minFee.value;
 
   // Logic: If trade > 5M, use 0.125% + VAT, otherwise use flat fee
   if (totalBuy > 5000000) {
-    buyFee = (totalBuy * 0.00125) * vatRate;
+    buyFee = (totalBuy * (commissionRate.value/100)) * vatRate;
   }
   
   if (totalSell > 5000000) {
-    sellFee = (totalSell * 0.00125) * vatRate;
+    sellFee = (totalSell * (commissionRate.value/100)) * vatRate;
   }
 
   // 3. Update reactive refs
-  const totalCosts = buyFee + sellFee;
+  const totalCosts = Number(buyFee + sellFee);
   costs.value = Number(totalCosts.toFixed(2)); // Keep it as a number
+
+  valueInvested.value = Number(totalBuy.toFixed(2))+ Number(totalCosts.toFixed(2));
+  breakEven.value = (valueInvested.value+costs.value)/quantity.value;
   
   // 4. Final Profit Calculation
   profit.value = (totalSell - totalBuy) - totalCosts;
@@ -101,44 +105,146 @@ const resetForm = () => {
   valueInvested.value = 0;
 }
 
-const formatCOP = (value: number) => {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0, // Typical for COP as we rarely use cents
-  }).format(value);
-};
+// const formatCOP = (value: number | string) => {
+//   const numeric = typeof value === 'string' 
+//     ? parseFloat(value.replace(/[^0-9]/g, '')) 
+//     : value;
+    
+//   return new Intl.NumberFormat('es-CO', {
+//     style: 'decimal',
+//     minimumFractionDigits: 0,
+//   }).format(numeric);
+// };
 
 </script>
 
 <template>
   <div class="w-full">
-    <form class="flex w-full" @submit.prevent>
-          <FieldGroup>
-            <FieldSeparator />
+    <form class="flex w-full flex-col gap-4" @submit.prevent>
+          <div class="flex flex-col gap-3">
 
-            <div class="flex gap-4">
+            <div class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
+              <Field>
+                <FieldLabel for="minimum-fee">
+                    Minimum Fee
+                </FieldLabel>
+                <Input
+                  v-model="minFee"
+                  @update:model-value="calculate"
+                  type="number"
+                  id="minimumFee"
+                  placeholder="%"
+                  required
+              />
+              </Field>
+              <Field>
+                <FieldLabel for="commission">
+                    Commission (%)
+                </FieldLabel>
+                <Input
+                    v-model="commissionRate"
+                    @update:model-value="calculate"
+                    type="number"
+                    id="commission"
+                    placeholder="%"
+                    required
+                />
+              </Field>
+              <Field>
+                <FieldLabel for="vat">
+                    VAT (%)
+                </FieldLabel>
+                <Input
+                    v-model="vatRatePercentage"
+                    @update:model-value="calculate"
+                    type="number"
+                    id="vat"
+                    placeholder="%"
+                    required
+                />
+              </Field>
+            </div>
+
+            <div class="flex md:flex-row flex-col gap-4 bg-slate-900 text-white p-4 rounded-md">
+              
               <Field>
                 <FieldLabel for="company">
                   Company
                 </FieldLabel>
-                <Select v-model="selectedSymbol" 
-              @update:model-value="fetchPrice" >
-                  <SelectTrigger id="company">
-                    <SelectValue placeholder="Select a company"/>
+                <Select v-model="selectedSymbol" @update:model-value="(val) => val && fetchPrice(val as string)">
+                  <SelectTrigger id="company" class="w-full">
+                    <SelectValue placeholder="Companies" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ECOPETROL.CL">
-                      Ecopetrol
-                    </SelectItem>
-                    <SelectItem value="PFCIBEST.CL">
-                      PFCIBEST
-                    </SelectItem>
-                    <SelectItem value="MINEROS.CL">
-                      Mineros
-                    </SelectItem>
+                    <SelectGroup>
+                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                        Local Stocks (BVC)
+                      </SelectLabel>
+                      <SelectItem value="ECOPETROL.CL">Ecopetrol</SelectItem>
+                      <SelectItem value="PFCIBEST.CL">Bancolombia Pref.</SelectItem>
+                      <SelectItem value="CIBEST.CL">Bancolombia</SelectItem>
+                      <SelectItem value="ISA.CL">Interconexión Eléctrica (ISA)</SelectItem>
+                      <SelectItem value="GEB.CL">Grupo Energía Bogotá</SelectItem>
+                      <SelectItem value="PFGRUPSURA.CL">Grupo Sura Pref.</SelectItem>
+                      <SelectItem value="GRUPOSURA.CL">Grupo Sura</SelectItem>
+                      <SelectItem value="PFCEMARGOS.CL">Cementos Argos Pref.</SelectItem>
+                      <SelectItem value="CEMARGOS.CL">Cementos Argos</SelectItem>
+                      <SelectItem value="PFGRUPOARG.CL">Grupo Argos Pref.</SelectItem>
+                      <SelectItem value="GRUPOARGOS.CL">Grupo Argos</SelectItem>
+                      <SelectItem value="PFAVAL.CL">Grupo Aval Pref.</SelectItem>
+                      <SelectItem value="BOGOTA.CL">Banco de Bogotá</SelectItem>
+                      <SelectItem value="BVC.CL">Bolsa de Valores de Col.</SelectItem>
+                      <SelectItem value="CELSIA.CL">Celsia</SelectItem>
+                      <SelectItem value="TERPEL.CL">Terpel</SelectItem>
+                      <SelectItem value="MINEROS.CL">Mineros</SelectItem>
+                      <SelectItem value="CNEC.CL">Canacol Energy</SelectItem>
+                    </SelectGroup>
+
+                    <SelectSeparator />
+
+                    <SelectGroup>
+                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                        International (MGC)
+                      </SelectLabel>
+                      <SelectItem value="AAPL.CL">Apple Inc.</SelectItem>
+                      <SelectItem value="AMZN.CL">Amazon.com</SelectItem>
+                      <SelectItem value="NVDA.CL">NVIDIA</SelectItem>
+                      <SelectItem value="MSFT.CL">Microsoft</SelectItem>
+                      <SelectItem value="GOOGL.CL">Alphabet (Google)</SelectItem>
+                      <SelectItem value="META.CL">Meta (Facebook)</SelectItem>
+                      <SelectItem value="TSLA.CL">Tesla</SelectItem>
+                      <SelectItem value="NU.CL">Nubank</SelectItem>
+                      <SelectItem value="BRK-B.CL">Berkshire Hathaway</SelectItem>
+                      <SelectItem value="JPM.CL">JP Morgan</SelectItem>
+                      <SelectItem value="KO.CL">Coca-Cola</SelectItem>
+                    </SelectGroup>
+
+                    <SelectSeparator />
+
+                    <SelectGroup>
+                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                        ETFs
+                      </SelectLabel>
+                      <SelectItem value="ICOLCAP.CL">iShares MSCI COLCAP</SelectItem>
+                      <SelectItem value="CSPX.L">iShares S&P 500 (UCITS)</SelectItem>
+                      <SelectItem value="EQAC.L">Invesco Nasdaq-100</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
+              </Field>
+
+              <Field>
+                <FieldLabel for="price-now">
+                    Price now
+                </FieldLabel>
+                <Input
+                    v-model="priceNow"
+                    type="text"
+                    id="price-now"
+                    placeholder="0"
+                    readonly
+                    :class="{ 'opacity-50': loading }"
+                />
               </Field>
 
               <Field>
@@ -160,12 +266,12 @@ const formatCOP = (value: number) => {
                     Buy Price
                 </FieldLabel>
                 <Input
-                    v-model="buyPrice"
-                    @update:model-value="calculate"
-                    type="number"
-                    id="price"
-                    placeholder="0"
-                    required
+                  v-model="buyPrice"
+                  @update:model-value="calculate"
+                  type="text"
+                  id="price"
+                  placeholder="0"
+                  required
                 />
               </Field>
 
@@ -175,7 +281,7 @@ const formatCOP = (value: number) => {
                 </FieldLabel>
                 <Input
                     v-model="valueInvested"
-                    type="number"
+                    type="text"
                     id="value-invested"
                     placeholder="0"
                     required
@@ -183,29 +289,15 @@ const formatCOP = (value: number) => {
               </Field>
 
               <Field>
-                <FieldLabel for="price-now">
-                    Price now
+                <FieldLabel for="brake-even">
+                  Brake Even
                 </FieldLabel>
                 <Input
-                    v-model="priceNow"
-                    type="number"
-                    id="price-now"
-                    :value="priceNow"
-                    placeholder="0"
-                    readonly
-                    :class="{ 'opacity-50': loading }"
-                />
-              </Field>
-
-              <Field>
-                <FieldLabel for="costs">
-                    Costs
-                </FieldLabel>
-                <Input
-                    v-model="costs"
-                    type="number"
-                    id="comission"
-                    placeholder="0"
+                v-model="breakEven"
+                type="text"
+                id="brake-even"
+                placeholder="0"
+                readonly
                 />
               </Field>
 
@@ -215,23 +307,23 @@ const formatCOP = (value: number) => {
                 </FieldLabel>
                 <Input
                     v-model="profit"
-                    type="number"
+                    type="text"
                     id="profit"
                     placeholder="0"
                     readonly
                 />
               </Field>
-                            
-
-              <!-- <Field orientation="horizontal">
-                <Button type="submit">
-                    <Plus class="mr-2 h-4 w-4" />
-                </Button>
-              </Field> -->
 
             </div>
-          </FieldGroup>
-        <FieldSeparator />
+            <h3 class="bg-slate-200 px-4 rounded-md font-bold">Commission(%) {{ commissionRate }} | VAT(%) {{ vatRatePercentage }} <button class="text-blue-500" >Edit</button></h3>
+          </div>
+
+          <Field orientation="horizontal">
+            <Button type="submit">
+                +
+            </Button>
+          </Field>
+
     </form>
   </div>
 </template>
