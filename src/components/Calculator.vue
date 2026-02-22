@@ -1,15 +1,12 @@
 <script setup lang="ts">
+import { addSimulation } from '@/composables/useSimulations';
 import { ref } from 'vue';
-import { Plus } from 'lucide-vue-next'
-
 import { Button } from '@/components/ui/button'
-
 import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 
 import {
   Field,
-  FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -36,6 +33,8 @@ const vatRatePercentage = ref(19);
 const breakEven = ref(0);
 const minFee = ref(7437.5);
 const costs = ref(0)
+
+const commisionVisible = ref(false)
 
 const fetchPrice = async (symbol: string) => {
   if (!symbol) return;
@@ -98,6 +97,22 @@ const calculate = () => {
   profit.value = (totalSell - totalBuy) - totalCosts;
 };
 
+const addRow = () => {
+  console.log("Adding to table")
+  addSimulation({
+    company: selectedSymbol.value,
+    priceNow: priceNow.value,
+    quantity: quantity.value,
+    buyPrice: buyPrice.value,
+    valueInvested: valueInvested.value,
+    breakEven: breakEven.value,
+    profit: profit.value,
+    minFee: minFee.value,
+    commissionRate: commissionRate.value,
+    vatRate: vatRatePercentage.value,
+  });
+};
+
 const resetForm = () => {
   quantity.value = 0;
   profit.value = 0;
@@ -123,49 +138,8 @@ const resetForm = () => {
     <form class="flex w-full flex-col gap-4" @submit.prevent>
           <div class="flex flex-col gap-3">
 
-            <div class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
-              <Field>
-                <FieldLabel for="minimum-fee">
-                    Minimum Fee
-                </FieldLabel>
-                <Input
-                  v-model="minFee"
-                  @update:model-value="calculate"
-                  type="number"
-                  id="minimumFee"
-                  placeholder="%"
-                  required
-              />
-              </Field>
-              <Field>
-                <FieldLabel for="commission">
-                    Commission (%)
-                </FieldLabel>
-                <Input
-                    v-model="commissionRate"
-                    @update:model-value="calculate"
-                    type="number"
-                    id="commission"
-                    placeholder="%"
-                    required
-                />
-              </Field>
-              <Field>
-                <FieldLabel for="vat">
-                    VAT (%)
-                </FieldLabel>
-                <Input
-                    v-model="vatRatePercentage"
-                    @update:model-value="calculate"
-                    type="number"
-                    id="vat"
-                    placeholder="%"
-                    required
-                />
-              </Field>
-            </div>
-
-            <div class="flex md:flex-row flex-col gap-4 bg-slate-900 text-white p-4 rounded-md">
+            
+            <div class="flex md:flex-row flex-col items-end gap-4 bg-slate-900 text-white p-4 rounded-md">
               
               <Field>
                 <FieldLabel for="company">
@@ -181,8 +155,8 @@ const resetForm = () => {
                         Local Stocks (BVC)
                       </SelectLabel>
                       <SelectItem value="ECOPETROL.CL">Ecopetrol</SelectItem>
-                      <SelectItem value="PFCIBEST.CL">Bancolombia Pref.</SelectItem>
-                      <SelectItem value="CIBEST.CL">Bancolombia</SelectItem>
+                      <SelectItem value="PFCIBEST.CL">Cibest Pref.</SelectItem>
+                      <SelectItem value="CIBEST.CL">Cibest</SelectItem>
                       <SelectItem value="ISA.CL">Interconexión Eléctrica (ISA)</SelectItem>
                       <SelectItem value="GEB.CL">Grupo Energía Bogotá</SelectItem>
                       <SelectItem value="PFGRUPSURA.CL">Grupo Sura Pref.</SelectItem>
@@ -199,9 +173,9 @@ const resetForm = () => {
                       <SelectItem value="MINEROS.CL">Mineros</SelectItem>
                       <SelectItem value="CNEC.CL">Canacol Energy</SelectItem>
                     </SelectGroup>
-
+                    
                     <SelectSeparator />
-
+                    
                     <SelectGroup>
                       <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
                         International (MGC)
@@ -218,9 +192,9 @@ const resetForm = () => {
                       <SelectItem value="JPM.CL">JP Morgan</SelectItem>
                       <SelectItem value="KO.CL">Coca-Cola</SelectItem>
                     </SelectGroup>
-
+                    
                     <SelectSeparator />
-
+                    
                     <SelectGroup>
                       <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
                         ETFs
@@ -232,62 +206,62 @@ const resetForm = () => {
                   </SelectContent>
                 </Select>
               </Field>
-
+              
               <Field>
                 <FieldLabel for="price-now">
-                    Price now
+                  Price now
                 </FieldLabel>
                 <Input
-                    v-model="priceNow"
-                    type="text"
-                    id="price-now"
-                    placeholder="0"
-                    readonly
-                    :class="{ 'opacity-50': loading }"
+                v-model="priceNow"
+                type="text"
+                id="price-now"
+                placeholder="0"
+                readonly
+                :class="{ 'opacity-50': loading }"
                 />
               </Field>
-
+              
               <Field>
                 <FieldLabel for="quantity">
-                    Quantity
+                  Quantity
                 </FieldLabel>
                 <Input
-                    v-model="quantity" 
-                    type="number"
-                    id="quantity"
-                    placeholder="0"
-                    @update:model-value="calculate"
-                    required
+                v-model="quantity" 
+                type="number"
+                id="quantity"
+                placeholder="0"
+                @update:model-value="calculate"
+                required
                 />
               </Field>
-
+              
               <Field>
                 <FieldLabel for="price">
-                    Buy Price
+                  Buy Price
                 </FieldLabel>
                 <Input
-                  v-model="buyPrice"
-                  @update:model-value="calculate"
-                  type="text"
-                  id="price"
-                  placeholder="0"
-                  required
+                v-model="buyPrice"
+                @update:model-value="calculate"
+                type="text"
+                id="price"
+                placeholder="0"
+                required
                 />
               </Field>
-
+              
               <Field>
                 <FieldLabel for="price">
-                    Value Invested
+                  Value Invested
                 </FieldLabel>
                 <Input
-                    v-model="valueInvested"
-                    type="text"
-                    id="value-invested"
-                    placeholder="0"
-                    required
+                v-model="valueInvested"
+                type="text"
+                id="value-invested"
+                placeholder="0"
+                required
                 />
               </Field>
-
+              
               <Field>
                 <FieldLabel for="brake-even">
                   Brake Even
@@ -300,29 +274,77 @@ const resetForm = () => {
                 readonly
                 />
               </Field>
-
+              
               <Field>
                 <FieldLabel for="profit">
-                    Profit
+                  Profit
                 </FieldLabel>
                 <Input
-                    v-model="profit"
-                    type="text"
-                    id="profit"
-                    placeholder="0"
-                    readonly
+                v-model="profit"
+                type="text"
+                id="profit"
+                placeholder="0"
+                readonly
                 />
               </Field>
-
-            </div>
-            <h3 class="bg-slate-200 px-4 rounded-md font-bold">Commission(%) {{ commissionRate }} | VAT(%) {{ vatRatePercentage }} <button class="text-blue-500" >Edit</button></h3>
-          </div>
-
-          <Field orientation="horizontal">
-            <Button type="submit">
+              
+              <Button class="bg-emerald-500 hover:bg-emerald-400" type="submit" @click="addRow">
                 +
-            </Button>
-          </Field>
+              </Button>
+              
+            </div>
+            <h3 class="bg-slate-200 p-4 rounded-md font-bold">
+              Commission(%) {{ commissionRate }} | VAT(%) {{ vatRatePercentage }} 
+              <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commisionVisible = !commisionVisible" >
+                Edit 
+                <i class="pi pi-pen-to-square"></i>
+              </span>
+            </h3>
+          </div>
+          
+          <div v-if="commisionVisible" class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
+            <Field>
+              <FieldLabel for="minimum-fee">
+                  Minimum Fee
+              </FieldLabel>
+              <Input
+                v-model="minFee"
+                @update:model-value="calculate"
+                type="number"
+                step="any"
+                id="minimumFee"
+                placeholder="%"
+                required
+            />
+            </Field>
+            <Field>
+              <FieldLabel for="commission">
+                  Commission (%)
+              </FieldLabel>
+              <Input
+                  v-model="commissionRate"
+                  @update:model-value="calculate"
+                  type="number"
+                  step="any"
+                  id="commission"
+                  placeholder="%"
+                  required
+              />
+            </Field>
+            <Field>
+              <FieldLabel for="vat">
+                  VAT (%)
+              </FieldLabel>
+              <Input
+                  v-model="vatRatePercentage"
+                  @update:model-value="calculate"
+                  type="number"
+                  id="vat"
+                  placeholder="%"
+                  required
+              />
+            </Field>
+          </div>
 
     </form>
   </div>

@@ -6,9 +6,12 @@ import Toast from 'primevue/toast';
 </script>
 
 <template>
-  <Toast />
-  <Header></Header>
-  <Calculator></Calculator>
-  <SimulationsTable></SimulationsTable>
+  <div class="flex flex-col gap-3">
+    <Toast />
+    <Header></Header>
+    <Calculator></Calculator>
+    <hr>
+    <SimulationsTable></SimulationsTable>
+  </div>
 </template>
 
