@@ -2,52 +2,38 @@
 import { simulations, deleteSimulation } from '@/composables/useSimulations';
 import { Trash2 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
 </script>
 
 <template>
-  <Table class=" rounded-md">
-    <TableHeader>
-      <TableRow>
-        <TableHead>Company</TableHead>
-        <TableHead>Now</TableHead>
-        <TableHead>Quantity</TableHead>
-        <TableHead>B Price</TableHead>
-        <TableHead>Investment</TableHead>
-        <TableHead>Break Even</TableHead>
-        <TableHead>Profit</TableHead>
-        <TableHead>Min Fee</TableHead>
-        <TableHead>Commission</TableHead>
-        <TableHead>VAT</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <TableRow v-for="row in simulations" :key="row.id">
-        <TableCell>{{ row.company }}</TableCell>
-        <TableCell>{{ row.priceNow }}</TableCell>
-        <TableCell>{{ row.quantity }}</TableCell>
-        <TableCell>{{ row.buyPrice }}</TableCell>
-        <TableCell>{{ row.valueInvested }}</TableCell>
-        <TableCell>{{ row.breakEven }}</TableCell>
-        <TableCell>{{ row.profit }}</TableCell>
-        <TableCell>{{ row.minFee }}</TableCell>
-        <TableCell>{{ row.commissionRate }}</TableCell>
-        <TableCell>{{ row.vatRate }}</TableCell>
-        <TableCell>
-          <Button variant="ghost" size="icon" @click="deleteSimulation(row.id)">
-            <Trash2 class="h-4 w-4 text-red-500" />
-          </Button>
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
+  <DataTable :value="simulations" scrollable scrollHeight="55vh">
+    <Column field="company" header="Company" sortable />
+    <Column field="priceNow" header="Now" sortable />
+    <Column field="quantity" header="Quantity" sortable />
+    <Column field="buyPrice" header="B Price" sortable />
+    <Column field="valueInvested" header="Investment" sortable />
+    <Column field="breakEven" header="Break Even" sortable />
+    <Column field="profit" header="Profit" sortable />
+    <Column field="minFee" header="Min Fee" sortable />
+    <Column field="commissionRate" header="Commission" sortable />
+    <Column field="vatRate" header="VAT" sortable />
+    <Column header="">
+
+    </Column>
+    <template #empty>
+      <div class="flex justify-center p-4 text-gray-500">
+        No simulations yet. Fill the form and press + to add one.
+      </div>
+    </template>
+
+    <Column header="">
+      <template #body="{ data }">
+        <Button variant="ghost" size="icon" @click="deleteSimulation(data.id)">
+          <Trash2 class="h-4 w-4 text-red-500" />
+        </Button>
+      </template>
+    </Column>
+  </DataTable>
 </template>

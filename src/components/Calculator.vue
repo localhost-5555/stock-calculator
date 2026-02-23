@@ -94,7 +94,7 @@ const calculate = () => {
   breakEven.value = (valueInvested.value+costs.value)/quantity.value;
   
   // 4. Final Profit Calculation
-  profit.value = (totalSell - totalBuy) - totalCosts;
+  profit.value = Number(((totalSell - totalBuy) - totalCosts).toFixed(2));
 };
 
 const addRow = () => {
@@ -120,17 +120,6 @@ const resetForm = () => {
   valueInvested.value = 0;
 }
 
-// const formatCOP = (value: number | string) => {
-//   const numeric = typeof value === 'string' 
-//     ? parseFloat(value.replace(/[^0-9]/g, '')) 
-//     : value;
-    
-//   return new Intl.NumberFormat('es-CO', {
-//     style: 'decimal',
-//     minimumFractionDigits: 0,
-//   }).format(numeric);
-// };
-
 </script>
 
 <template>
@@ -138,9 +127,8 @@ const resetForm = () => {
     <form class="flex w-full flex-col gap-4" @submit.prevent>
           <div class="flex flex-col gap-3">
 
-            
-            <div class="flex md:flex-row flex-col items-end gap-4 bg-slate-900 text-white p-4 rounded-md">
-              
+            <div class="flex md:flex-row flex-col items-end gap-4 bg-slate-900 text-white p-4 rounded-md">   
+
               <Field>
                 <FieldLabel for="company">
                   Company
@@ -150,63 +138,90 @@ const resetForm = () => {
                     <SelectValue placeholder="Companies" />
                   </SelectTrigger>
                   <SelectContent>
+
                     <SelectGroup>
                       <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        Local Stocks (BVC)
+                        Technology
                       </SelectLabel>
-                      <SelectItem value="ECOPETROL.CL">Ecopetrol</SelectItem>
-                      <SelectItem value="PFCIBEST.CL">Cibest Pref.</SelectItem>
-                      <SelectItem value="CIBEST.CL">Cibest</SelectItem>
-                      <SelectItem value="ISA.CL">Interconexión Eléctrica (ISA)</SelectItem>
-                      <SelectItem value="GEB.CL">Grupo Energía Bogotá</SelectItem>
-                      <SelectItem value="PFGRUPSURA.CL">Grupo Sura Pref.</SelectItem>
-                      <SelectItem value="GRUPOSURA.CL">Grupo Sura</SelectItem>
-                      <SelectItem value="PFCEMARGOS.CL">Cementos Argos Pref.</SelectItem>
-                      <SelectItem value="CEMARGOS.CL">Cementos Argos</SelectItem>
-                      <SelectItem value="PFGRUPOARG.CL">Grupo Argos Pref.</SelectItem>
-                      <SelectItem value="GRUPOARGOS.CL">Grupo Argos</SelectItem>
-                      <SelectItem value="PFAVAL.CL">Grupo Aval Pref.</SelectItem>
-                      <SelectItem value="BOGOTA.CL">Banco de Bogotá</SelectItem>
-                      <SelectItem value="BVC.CL">Bolsa de Valores de Col.</SelectItem>
-                      <SelectItem value="CELSIA.CL">Celsia</SelectItem>
-                      <SelectItem value="TERPEL.CL">Terpel</SelectItem>
-                      <SelectItem value="MINEROS.CL">Mineros</SelectItem>
-                      <SelectItem value="CNEC.CL">Canacol Energy</SelectItem>
+                      <SelectItem value="IBM">IBM</SelectItem>
+                      <SelectItem value="ORCL">Oracle</SelectItem>
+                      <SelectItem value="CRM">Salesforce</SelectItem>
+                      <SelectItem value="DELL">Dell Technologies</SelectItem>
+                      <SelectItem value="HPQ">HP Inc.</SelectItem>
                     </SelectGroup>
-                    
+
                     <SelectSeparator />
-                    
+
                     <SelectGroup>
                       <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        International (MGC)
+                        Finance
                       </SelectLabel>
-                      <SelectItem value="AAPL.CL">Apple Inc.</SelectItem>
-                      <SelectItem value="AMZN.CL">Amazon.com</SelectItem>
-                      <SelectItem value="NVDA.CL">NVIDIA</SelectItem>
-                      <SelectItem value="MSFT.CL">Microsoft</SelectItem>
-                      <SelectItem value="GOOGL.CL">Alphabet (Google)</SelectItem>
-                      <SelectItem value="META.CL">Meta (Facebook)</SelectItem>
-                      <SelectItem value="TSLA.CL">Tesla</SelectItem>
-                      <SelectItem value="NU.CL">Nubank</SelectItem>
-                      <SelectItem value="BRK-B.CL">Berkshire Hathaway</SelectItem>
-                      <SelectItem value="JPM.CL">JP Morgan</SelectItem>
-                      <SelectItem value="KO.CL">Coca-Cola</SelectItem>
+                      <SelectItem value="JPM">JP Morgan Chase</SelectItem>
+                      <SelectItem value="BAC">Bank of America</SelectItem>
+                      <SelectItem value="WFC">Wells Fargo</SelectItem>
+                      <SelectItem value="GS">Goldman Sachs</SelectItem>
+                      <SelectItem value="MS">Morgan Stanley</SelectItem>
+                      <SelectItem value="C">Citigroup</SelectItem>
+                      <SelectItem value="AXP">American Express</SelectItem>
+                      <SelectItem value="BLK">BlackRock</SelectItem>
                     </SelectGroup>
-                    
+
                     <SelectSeparator />
-                    
+
                     <SelectGroup>
                       <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        ETFs
+                        Energy
                       </SelectLabel>
-                      <SelectItem value="ICOLCAP.CL">iShares MSCI COLCAP</SelectItem>
-                      <SelectItem value="CSPX.L">iShares S&P 500 (UCITS)</SelectItem>
-                      <SelectItem value="EQAC.L">Invesco Nasdaq-100</SelectItem>
+                      <SelectItem value="XOM">ExxonMobil</SelectItem>
+                      <SelectItem value="CVX">Chevron</SelectItem>
+                      <SelectItem value="COP">ConocoPhillips</SelectItem>
+                      <SelectItem value="SLB">Schlumberger</SelectItem>
+                      <SelectItem value="OXY">Occidental Petroleum</SelectItem>
                     </SelectGroup>
+
+                    <SelectSeparator />
+
+                    <SelectGroup>
+                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                        Healthcare
+                      </SelectLabel>
+                      <SelectItem value="JNJ">Johnson & Johnson</SelectItem>
+                      <SelectItem value="PFE">Pfizer</SelectItem>
+                      <SelectItem value="MRK">Merck</SelectItem>
+                      <SelectItem value="ABT">Abbott Laboratories</SelectItem>
+                      <SelectItem value="UNH">UnitedHealth Group</SelectItem>
+                    </SelectGroup>
+
+                    <SelectSeparator />
+
+                    <SelectGroup>
+                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                        Consumer
+                      </SelectLabel>
+                      <SelectItem value="KO">Coca-Cola</SelectItem>
+                      <SelectItem value="PG">Procter & Gamble</SelectItem>
+                      <SelectItem value="WMT">Walmart</SelectItem>
+                      <SelectItem value="MCD">McDonald's</SelectItem>
+                      <SelectItem value="NKE">Nike</SelectItem>
+                      <SelectItem value="PEP">PepsiCo</SelectItem>
+                    </SelectGroup>
+
+                    <SelectSeparator />
+
+                    <SelectGroup>
+                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                        ETFs (NYSE Arca)
+                      </SelectLabel>
+                      <SelectItem value="SPY">SPDR S&P 500</SelectItem>
+                      <SelectItem value="DIA">SPDR Dow Jones</SelectItem>
+                      <SelectItem value="IVV">iShares S&P 500</SelectItem>
+                      <SelectItem value="VTI">Vanguard Total Market</SelectItem>
+                      <SelectItem value="GLD">SPDR Gold Shares</SelectItem>
+                    </SelectGroup>
+
                   </SelectContent>
                 </Select>
               </Field>
-              
               <Field>
                 <FieldLabel for="price-now">
                   Price now
@@ -293,13 +308,6 @@ const resetForm = () => {
               </Button>
               
             </div>
-            <h3 class="bg-slate-200 p-4 rounded-md font-bold">
-              Commission(%) {{ commissionRate }} | VAT(%) {{ vatRatePercentage }} 
-              <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commisionVisible = !commisionVisible" >
-                Edit 
-                <i class="pi pi-pen-to-square"></i>
-              </span>
-            </h3>
           </div>
           
           <div v-if="commisionVisible" class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
@@ -346,6 +354,13 @@ const resetForm = () => {
             </Field>
           </div>
 
+    <h3 class="bg-slate-200 p-4 rounded-md font-bold">
+        Commission(%): {{ commissionRate }} | VAT(%): {{ vatRatePercentage }} 
+        <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commisionVisible = !commisionVisible" >
+          Edit 
+          <i class="pi pi-pen-to-square"></i>
+        </span>
+      </h3>
     </form>
   </div>
 </template>

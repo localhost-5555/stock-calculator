@@ -103,6 +103,10 @@ button:focus-visible {
   padding: 2rem;
 }
 
+.p-datatable-table-container {
+  @apply rounded-md;
+}
+
 input, button[data-slot="select-trigger"] {
   @apply w-fit md:w-full bg-white text-black;
 }
