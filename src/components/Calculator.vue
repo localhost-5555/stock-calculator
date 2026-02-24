@@ -3,6 +3,8 @@ import { addSimulation } from '@/composables/useSimulations';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button'
 import { useToast } from 'primevue/usetoast';
+import InputNumber from 'primevue/inputnumber';
+
 const toast = useToast();
 
 import {
@@ -222,145 +224,149 @@ const resetForm = () => {
                   </SelectContent>
                 </Select>
               </Field>
+
+              <!-- Price Now (readonly) -->
               <Field>
-                <FieldLabel for="price-now">
-                  Price now
-                </FieldLabel>
-                <Input
-                v-model="priceNow"
-                type="text"
-                id="price-now"
-                placeholder="0"
-                readonly
-                :class="{ 'opacity-50': loading }"
+                <FieldLabel for="price-now">Price now</FieldLabel>
+                <InputNumber
+                  v-model="priceNow"
+                  id="price-now"
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                  :readonly="true"
+                  :class="{ 'opacity-50': loading }"
                 />
               </Field>
               
               <Field>
-                <FieldLabel for="quantity">
-                  Quantity
-                </FieldLabel>
-                <Input
-                v-model="quantity" 
-                type="number"
-                id="quantity"
-                placeholder="0"
-                @update:model-value="calculate"
-                required
+                <FieldLabel for="quantity">Quantity</FieldLabel>
+                <InputNumber
+                  v-model="quantity"
+                  id="quantity"
+                  :min="0"
+                  @update:model-value="calculate"
                 />
               </Field>
               
+              <!-- Buy Price -->
               <Field>
-                <FieldLabel for="price">
-                  Buy Price
-                </FieldLabel>
-                <Input
-                v-model="buyPrice"
-                @update:model-value="calculate"
-                type="text"
-                id="price"
-                placeholder="0"
-                required
+                <FieldLabel for="price">Buy Price</FieldLabel>
+                <InputNumber
+                  v-model="buyPrice"
+                  id="price"
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                  @update:model-value="calculate"
                 />
               </Field>
-              
+
+              <!-- Value Invested (readonly) -->
               <Field>
-                <FieldLabel for="price">
-                  Value Invested
-                </FieldLabel>
-                <Input
-                v-model="valueInvested"
-                type="text"
-                id="value-invested"
-                placeholder="0"
-                required
+                <FieldLabel for="value-invested">Value Invested</FieldLabel>
+                <InputNumber
+                  v-model="valueInvested"
+                  id="value-invested"
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                  :readonly="true"
                 />
               </Field>
-              
+
+              <!-- Break Even (readonly) -->
               <Field>
-                <FieldLabel for="brake-even">
-                  Brake Even
-                </FieldLabel>
-                <Input
-                v-model="breakEven"
-                type="text"
-                id="brake-even"
-                placeholder="0"
-                readonly
+                <FieldLabel for="brake-even">Break Even</FieldLabel>
+                <InputNumber
+                  v-model="breakEven"
+                  id="brake-even"
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                  :readonly="true"
                 />
               </Field>
-              
+
+              <!-- Profit (readonly) -->
               <Field>
-                <FieldLabel for="profit">
-                  Profit
-                </FieldLabel>
-                <Input
-                v-model="profit"
-                type="text"
-                id="profit"
-                placeholder="0"
-                readonly
+                <FieldLabel for="profit">Profit</FieldLabel>
+                <InputNumber
+                  v-model="profit"
+                  id="profit"
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                  :readonly="true"
                 />
               </Field>
               
               <Button class="bg-emerald-500 hover:bg-emerald-400" type="submit" @click="addRow">
-                +
+                + Add
               </Button>
               
             </div>
           </div>
           
           <div v-if="commisionVisible" class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
+            <!-- Min Fee -->
             <Field>
-              <FieldLabel for="minimum-fee">
-                  Minimum Fee
-              </FieldLabel>
-              <Input
+              <FieldLabel for="minimum-fee">Minimum Fee</FieldLabel>
+              <InputNumber
                 v-model="minFee"
-                @update:model-value="calculate"
-                type="number"
-                step="any"
                 id="minimumFee"
-                placeholder="%"
-                required
-            />
-            </Field>
-            <Field>
-              <FieldLabel for="commission">
-                  Commission (%)
-              </FieldLabel>
-              <Input
-                  v-model="commissionRate"
-                  @update:model-value="calculate"
-                  type="number"
-                  step="any"
-                  id="commission"
-                  placeholder="%"
-                  required
+                mode="currency"
+                currency="USD"
+                locale="en-US"
+                @update:model-value="calculate"
               />
             </Field>
+
+            <!-- Commission Rate -->
             <Field>
-              <FieldLabel for="vat">
-                  VAT (%)
-              </FieldLabel>
-              <Input
-                  v-model="vatRatePercentage"
-                  @update:model-value="calculate"
-                  type="number"
-                  id="vat"
-                  placeholder="%"
-                  required
+              <FieldLabel for="commission">Commission (%)</FieldLabel>
+              <InputNumber
+                v-model="commissionRate"
+                id="commission"
+                mode="decimal"
+                :min="0"
+                :max="100"
+                :minFractionDigits="2"
+                suffix="%"
+                @update:model-value="calculate"
+              />
+            </Field>
+
+            <!-- VAT -->
+            <Field>
+              <FieldLabel for="vat">VAT (%)</FieldLabel>
+              <InputNumber
+                v-model="vatRatePercentage"
+                id="vat"
+                mode="decimal"
+                :min="0"
+                :max="100"
+                suffix="%"
+                @update:model-value="calculate"
               />
             </Field>
           </div>
 
-    <h3 class="bg-slate-200 p-4 rounded-md font-bold">
-        Commission(%): {{ commissionRate }} | VAT(%): {{ vatRatePercentage }} 
-        <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commisionVisible = !commisionVisible" >
-          Edit 
-          <i class="pi pi-pen-to-square"></i>
-        </span>
+    <div class="flex flex-col md:flex-row gap-2 bg-slate-200 p-4 rounded-md font-bold">
+      <h3>
+        Minimum fee: <span class="font-normal">{{ minFee }}</span>
       </h3>
+      <h3>
+        Commission(%): <span class="font-normal">{{ commissionRate }}</span>
+      </h3>
+      <h3>
+        VAT(%): <span class="font-normal">{{ vatRatePercentage }}</span> 
+      </h3>
+      <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commisionVisible = !commisionVisible" > 
+        <i class="pi pi-pen-to-square"></i>
+        Editar
+      </span>
+    </div>
     </form>
   </div>
 </template>

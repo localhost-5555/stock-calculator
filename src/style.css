@@ -66,11 +66,6 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
 button {
   border-radius: 8px;
   padding: 0.6em 1.2em;
@@ -106,10 +101,17 @@ button:focus-visible {
 .p-datatable-table-container {
   @apply rounded-md;
 }
+.p-datatable-thead th {
+  @apply bg-neutral-950 text-neutral-200;
+}
+.p-datatable-tbody td {
+  @apply bg-neutral-950 text-neutral-200;
+}
 
 input, button[data-slot="select-trigger"] {
   @apply w-fit md:w-full bg-white text-black;
 }
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
