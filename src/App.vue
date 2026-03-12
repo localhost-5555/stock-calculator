@@ -10,7 +10,6 @@ import Toast from 'primevue/toast';
     <Toast />
     <Header></Header>
     <Calculator></Calculator>
-    <hr>
     <SimulationsTable></SimulationsTable>
   </div>
 </template>

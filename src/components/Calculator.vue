@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { Button } from '@/components/ui/button'
 import { useToast } from 'primevue/usetoast';
 import InputNumber from 'primevue/inputnumber';
+import Select from 'primevue/select';
 
 const toast = useToast();
 
@@ -11,32 +12,23 @@ import {
   Field,
   FieldLabel,
 } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 
 const loading = ref(false);
 
-const selectedSymbol = ref('');
+const selectedCompany = ref(null);
 const quantity = ref(0);
 const profit = ref(0);
 const priceNow = ref(0);
 const buyPrice = ref(0);
 const valueInvested = ref(0);
-// const costs = ref(0);
 
 const commissionRate = ref(1.25);
 const vatRatePercentage = ref(19);
 const breakEven = ref(0);
-const minFee = ref(7437.5);
+const minFee = ref(1);
 const costs = ref(0)
 
-const commisionVisible = ref(false)
+const commissionVisible = ref(false)
 
 const fetchPrice = async (symbol: string) => {
   if (!symbol) return;
@@ -53,7 +45,7 @@ const fetchPrice = async (symbol: string) => {
       severity: 'success', // Severity options: 'success', 'info', 'warn', 'error', etc.
       summary: 'Success Message',
       detail: 'Stock price fetched successfully.',
-      life: 20000 // Duration in milliseconds to close the message automatically
+      life: 3000 // Duration in milliseconds to close the message automatically
     });
   } catch (err) {
     console.error('Fetch error:', err);
@@ -79,12 +71,12 @@ const calculate = () => {
   let buyFee = minFee.value;
   let sellFee = minFee.value;
 
-  // Logic: If trade > 5M, use 0.125% + VAT, otherwise use flat fee
-  if (totalBuy > 5000000) {
+  // Logic: If trade > 1000, use 0.125% + VAT, otherwise use flat fee
+  if (totalBuy > 1000) {
     buyFee = (totalBuy * (commissionRate.value/100)) * vatRate;
   }
   
-  if (totalSell > 5000000) {
+  if (totalSell > 1000) {
     sellFee = (totalSell * (commissionRate.value/100)) * vatRate;
   }
 
@@ -100,9 +92,8 @@ const calculate = () => {
 };
 
 const addRow = () => {
-  console.log("Adding to table")
   addSimulation({
-    company: selectedSymbol.value,
+    company: selectedCompany.value.name ?? '',
     priceNow: priceNow.value,
     quantity: quantity.value,
     buyPrice: buyPrice.value,
@@ -118,10 +109,48 @@ const addRow = () => {
 const resetForm = () => {
   quantity.value = 0;
   profit.value = 0;
-  buyPrice.value = 0;
   valueInvested.value = 0;
 }
 
+const companies = ref([
+  {
+    label: 'Technology',
+    items: [
+      { name: 'IBM', code: 'IBM' },
+      { name: 'Oracle', code: 'ORCL' },
+      { name: 'Salesforce', code: 'CRM' },
+      { name: 'Dell Technologies', code: 'DELL' },
+      { name: 'HP Inc.', code: 'HPQ' },
+      { name: 'Cisco Systems', code: 'CSCO' },
+      { name: 'NVIDIA', code: 'NVDA' },
+      { name: 'Intel', code: 'INTC' },
+      { name: 'AMD', code: 'AMD' },
+      { name: 'Microsoft', code: 'MSFT' },
+      { name: 'Apple', code: 'AAPL' },
+      { name: 'Amazon', code: 'AMZN' },
+      { name: 'Google', code: 'GOOGL' },
+      { name: 'Facebook', code: 'FB' },
+      { name: 'Twitter', code: 'TWTR' },
+      { name: 'Netflix', code: 'NFLX' },
+      { name: 'Uber', code: 'UBER' },
+      { name: 'Lyft', code: 'LYFT' },
+      { name: 'Airbnb', code: 'ABNB' },
+      { name: 'Zoom', code: 'ZM' },
+    ]
+  },
+  {
+    label: 'Finance',
+    items: [
+      { name: 'JP Morgan Chase', code: 'JPM' },
+      { name: 'Bank of America', code: 'BAC' },
+      { name: 'Goldman Sachs', code: 'GS' },
+      { name: 'Morgan Stanley', code: 'MS' },
+      { name: 'Citigroup', code: 'C' },
+      { name: 'American Express', code: 'AXP' },
+      { name: 'BlackRock', code: 'BLK' },
+    ]
+  },
+]);
 </script>
 
 <template>
@@ -135,93 +164,21 @@ const resetForm = () => {
                 <FieldLabel for="company">
                   Company
                 </FieldLabel>
-                <Select v-model="selectedSymbol" @update:model-value="(val) => val && fetchPrice(val as string)">
-                  <SelectTrigger id="company" class="w-full">
-                    <SelectValue placeholder="Companies" />
-                  </SelectTrigger>
-                  <SelectContent>
-
-                    <SelectGroup>
-                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        Technology
-                      </SelectLabel>
-                      <SelectItem value="IBM">IBM</SelectItem>
-                      <SelectItem value="ORCL">Oracle</SelectItem>
-                      <SelectItem value="CRM">Salesforce</SelectItem>
-                      <SelectItem value="DELL">Dell Technologies</SelectItem>
-                      <SelectItem value="HPQ">HP Inc.</SelectItem>
-                    </SelectGroup>
-
-                    <SelectSeparator />
-
-                    <SelectGroup>
-                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        Finance
-                      </SelectLabel>
-                      <SelectItem value="JPM">JP Morgan Chase</SelectItem>
-                      <SelectItem value="BAC">Bank of America</SelectItem>
-                      <SelectItem value="WFC">Wells Fargo</SelectItem>
-                      <SelectItem value="GS">Goldman Sachs</SelectItem>
-                      <SelectItem value="MS">Morgan Stanley</SelectItem>
-                      <SelectItem value="C">Citigroup</SelectItem>
-                      <SelectItem value="AXP">American Express</SelectItem>
-                      <SelectItem value="BLK">BlackRock</SelectItem>
-                    </SelectGroup>
-
-                    <SelectSeparator />
-
-                    <SelectGroup>
-                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        Energy
-                      </SelectLabel>
-                      <SelectItem value="XOM">ExxonMobil</SelectItem>
-                      <SelectItem value="CVX">Chevron</SelectItem>
-                      <SelectItem value="COP">ConocoPhillips</SelectItem>
-                      <SelectItem value="SLB">Schlumberger</SelectItem>
-                      <SelectItem value="OXY">Occidental Petroleum</SelectItem>
-                    </SelectGroup>
-
-                    <SelectSeparator />
-
-                    <SelectGroup>
-                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        Healthcare
-                      </SelectLabel>
-                      <SelectItem value="JNJ">Johnson & Johnson</SelectItem>
-                      <SelectItem value="PFE">Pfizer</SelectItem>
-                      <SelectItem value="MRK">Merck</SelectItem>
-                      <SelectItem value="ABT">Abbott Laboratories</SelectItem>
-                      <SelectItem value="UNH">UnitedHealth Group</SelectItem>
-                    </SelectGroup>
-
-                    <SelectSeparator />
-
-                    <SelectGroup>
-                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        Consumer
-                      </SelectLabel>
-                      <SelectItem value="KO">Coca-Cola</SelectItem>
-                      <SelectItem value="PG">Procter & Gamble</SelectItem>
-                      <SelectItem value="WMT">Walmart</SelectItem>
-                      <SelectItem value="MCD">McDonald's</SelectItem>
-                      <SelectItem value="NKE">Nike</SelectItem>
-                      <SelectItem value="PEP">PepsiCo</SelectItem>
-                    </SelectGroup>
-
-                    <SelectSeparator />
-
-                    <SelectGroup>
-                      <SelectLabel class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
-                        ETFs (NYSE Arca)
-                      </SelectLabel>
-                      <SelectItem value="SPY">SPDR S&P 500</SelectItem>
-                      <SelectItem value="DIA">SPDR Dow Jones</SelectItem>
-                      <SelectItem value="IVV">iShares S&P 500</SelectItem>
-                      <SelectItem value="VTI">Vanguard Total Market</SelectItem>
-                      <SelectItem value="GLD">SPDR Gold Shares</SelectItem>
-                    </SelectGroup>
-
-                  </SelectContent>
+                <Select
+                  v-model="selectedCompany"
+                  :options="companies"
+                  optionLabel="name"
+                  optionGroupLabel="label"
+                  optionGroupChildren="items"
+                  placeholder="Companies"
+                  class="w-full"
+                  @change="selectedCompany && fetchPrice(selectedCompany.code)"
+                >
+                  <template #optiongroup="slotProps">
+                    <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                      {{ slotProps.option.label }}
+                    </div>
+                  </template>
                 </Select>
               </Field>
 
@@ -245,7 +202,7 @@ const resetForm = () => {
                   v-model="quantity"
                   id="quantity"
                   :min="0"
-                  @update:model-value="calculate"
+                  @input="(e) => { quantity = e.value; calculate(); }"
                 />
               </Field>
               
@@ -258,7 +215,7 @@ const resetForm = () => {
                   mode="currency"
                   currency="USD"
                   locale="en-US"
-                  @update:model-value="calculate"
+                  @input="(e) => { buyPrice = e.value; calculate(); }"
                 />
               </Field>
 
@@ -308,7 +265,7 @@ const resetForm = () => {
             </div>
           </div>
           
-          <div v-if="commisionVisible" class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
+          <div v-if="commissionVisible" class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
             <!-- Min Fee -->
             <Field>
               <FieldLabel for="minimum-fee">Minimum Fee</FieldLabel>
@@ -318,7 +275,7 @@ const resetForm = () => {
                 mode="currency"
                 currency="USD"
                 locale="en-US"
-                @update:model-value="calculate"
+                @input="(e) => { minFee = e.value; calculate(); }"
               />
             </Field>
 
@@ -333,7 +290,7 @@ const resetForm = () => {
                 :max="100"
                 :minFractionDigits="2"
                 suffix="%"
-                @update:model-value="calculate"
+                @input="(e) => { commissionRate = e.value; calculate(); }"
               />
             </Field>
 
@@ -347,7 +304,7 @@ const resetForm = () => {
                 :min="0"
                 :max="100"
                 suffix="%"
-                @update:model-value="calculate"
+                @input="(e) => { vatRatePercentage = e.value; calculate(); }"
               />
             </Field>
           </div>
@@ -362,7 +319,7 @@ const resetForm = () => {
       <h3>
         VAT(%): <span class="font-normal">{{ vatRatePercentage }}</span> 
       </h3>
-      <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commisionVisible = !commisionVisible" > 
+      <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commissionVisible = !commissionVisible" > 
         <i class="pi pi-pen-to-square"></i>
         Editar
       </span>
