@@ -93,6 +93,7 @@ const calculate = () => {
 
 const addRow = () => {
   addSimulation({
+    date: new Date(),
     company: selectedCompany.value.name ?? '',
     priceNow: priceNow.value,
     quantity: quantity.value,

@@ -13,10 +13,30 @@ const formatCurrency = (value: number) => {
 };
 
 const formatPercent = (value: number) => `${value}%`;
+
+const updateSimulations = async () => {
+  // Update the price of each simulation
+  for (const simulation of simulations.value) {
+    try {
+      // Fetch the price of the company
+      let price = await fetch(`http://localhost:3000?symbol=${simulation.company}`);
+      if (!price.ok) throw new Error('Stock not found');
+      const data = await price.json();
+      
+      // Update the price of the simulation
+      simulation.priceNow = data.regularMarketPrice;
+    } catch (error) {
+      console.error("Error updating simulation: ", error);
+    }
+  }
+};
 </script>
 
 <template>
-  <DataTable :value="simulations" scrollable scrollHeight="55vh">
+  <DataTable :value="simulations" scrollable scrollHeight="55vh" class="relative">
+    <Button class="bg-emerald-500 hover:bg-emerald-400 absolute bottom-2 right-2 z-10 opacity-90" @click="updateSimulations">
+      <i class="pi pi-refresh" style="font-size: 1rem"></i>
+    </Button>
     <Column field="company" header="Company" sortable />
     <Column field="priceNow" header="Now" sortable>
       <template #body="{ data }">{{ formatCurrency(data.priceNow) }}</template>
@@ -65,4 +85,5 @@ const formatPercent = (value: number) => `${value}%`;
       </template>
     </Column>
   </DataTable>
+  
 </template>

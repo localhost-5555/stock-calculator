@@ -3,6 +3,7 @@ import { ref } from 'vue';
 
 export interface Simulation {
   id: number;
+  date: Date;
   company: string;
   priceNow: number;
   quantity: number;
@@ -18,6 +19,7 @@ export interface Simulation {
 const loadFromStorage = (): Simulation[] => {
   try {
     const stored = localStorage.getItem('simulations');
+
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
