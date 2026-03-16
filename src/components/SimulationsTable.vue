@@ -34,7 +34,7 @@ const updateSimulations = async () => {
 
 <template>
   <DataTable :value="simulations" scrollable scrollHeight="55vh" class="relative">
-    <Button class="bg-emerald-500 hover:bg-emerald-400 absolute bottom-2 right-2 z-10 opacity-90" @click="updateSimulations">
+    <Button class="bg-emerald-500 hover:bg-emerald-400 absolute top-2 right-2 z-10 opacity-90" @click="updateSimulations">
       <i class="pi pi-refresh" style="font-size: 1rem"></i>
     </Button>
     <Column field="company" header="Company" sortable />

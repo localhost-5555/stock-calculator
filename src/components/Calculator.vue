@@ -6,20 +6,29 @@ import { useToast } from 'primevue/usetoast';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
 
-const toast = useToast();
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { simulationSchema } from '@/schemas/simulationSchema'
 
 import {
   Field,
   FieldLabel,
+  FieldError,
 } from '@/components/ui/field'
+
+const { handleSubmit, defineField, errors } = useForm({
+  validationSchema: toTypedSchema(simulationSchema),
+})
+
+const toast = useToast();
 
 const loading = ref(false);
 
-const selectedCompany = ref(null);
-const quantity = ref(0);
+const [selectedCompany] = defineField('company')
+const [quantity] = defineField('quantity')
+const [buyPrice] = defineField('buyPrice')
+const [priceNow] = defineField('priceNow')
 const profit = ref(0);
-const priceNow = ref(0);
-const buyPrice = ref(0);
 const valueInvested = ref(0);
 
 const commissionRate = ref(1.25);
@@ -91,7 +100,8 @@ const calculate = () => {
   profit.value = Number(((totalSell - totalBuy) - totalCosts).toFixed(2));
 };
 
-const addRow = () => {
+const addRow = handleSubmit(() => {
+  console.log("hola");
   addSimulation({
     date: new Date(),
     company: selectedCompany.value.name ?? '',
@@ -105,7 +115,7 @@ const addRow = () => {
     commissionRate: commissionRate.value,
     vatRate: vatRatePercentage.value,
   });
-};
+})
 
 const resetForm = () => {
   quantity.value = 0;
@@ -181,6 +191,7 @@ const companies = ref([
                     </div>
                   </template>
                 </Select>
+                <FieldError>{{ errors.company }}</FieldError>
               </Field>
 
               <!-- Price Now (readonly) -->
@@ -195,6 +206,7 @@ const companies = ref([
                   :readonly="true"
                   :class="{ 'opacity-50': loading }"
                 />
+                <FieldError>{{ errors.priceNow }}</FieldError>
               </Field>
               
               <Field>
@@ -205,6 +217,7 @@ const companies = ref([
                   :min="0"
                   @input="(e) => { quantity = e.value; calculate(); }"
                 />
+                <FieldError>{{ errors.quantity }}</FieldError>
               </Field>
               
               <!-- Buy Price -->
@@ -218,6 +231,7 @@ const companies = ref([
                   locale="en-US"
                   @input="(e) => { buyPrice = e.value; calculate(); }"
                 />
+                <FieldError>{{ errors.buyPrice }}</FieldError>
               </Field>
 
               <!-- Value Invested (readonly) -->
@@ -231,6 +245,7 @@ const companies = ref([
                   locale="en-US"
                   :readonly="true"
                 />
+                <ErrorMessage name="valueInvested" />
               </Field>
 
               <!-- Break Even (readonly) -->
@@ -244,6 +259,7 @@ const companies = ref([
                   locale="en-US"
                   :readonly="true"
                 />
+                <ErrorMessage name="breakEven" />
               </Field>
 
               <!-- Profit (readonly) -->
@@ -257,6 +273,7 @@ const companies = ref([
                   locale="en-US"
                   :readonly="true"
                 />
+                <ErrorMessage name="profit" />
               </Field>
               
               <Button class="bg-emerald-500 hover:bg-emerald-400" type="submit" @click="addRow">
@@ -278,6 +295,7 @@ const companies = ref([
                 locale="en-US"
                 @input="(e) => { minFee = e.value; calculate(); }"
               />
+              <ErrorMessage name="minFee" />
             </Field>
 
             <!-- Commission Rate -->
@@ -293,6 +311,7 @@ const companies = ref([
                 suffix="%"
                 @input="(e) => { commissionRate = e.value; calculate(); }"
               />
+              <ErrorMessage name="commissionRate" />
             </Field>
 
             <!-- VAT -->
@@ -307,6 +326,7 @@ const companies = ref([
                 suffix="%"
                 @input="(e) => { vatRatePercentage = e.value; calculate(); }"
               />
+              <ErrorMessage name="vatRatePercentage" />
             </Field>
           </div>
 
