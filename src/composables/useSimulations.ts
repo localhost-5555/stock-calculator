@@ -19,7 +19,6 @@ export interface Simulation {
 const loadFromStorage = (): Simulation[] => {
   try {
     const stored = localStorage.getItem('simulations');
-
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
@@ -34,7 +33,7 @@ export const simulations = ref<Simulation[]>(loadFromStorage());
 
 export const addSimulation = (row: Omit<Simulation, 'id'>) => {
   const newRow = { ...row, id: Date.now() };
-  simulations.value.push(newRow);
+  simulations.value.unshift(newRow);
   saveToStorage(simulations.value);
 };
 
