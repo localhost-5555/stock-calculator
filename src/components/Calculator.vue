@@ -18,6 +18,11 @@ import {
 
 const { handleSubmit, defineField, errors } = useForm({
   validationSchema: toTypedSchema(simulationSchema),
+  initialValues: {
+    commissionRate: 1.25,
+    vatRatePercentage: 19,
+    minFee: 1,
+  }
 })
 
 const toast = useToast();
@@ -28,13 +33,13 @@ const [selectedCompany] = defineField('company')
 const [quantity] = defineField('quantity')
 const [buyPrice] = defineField('buyPrice')
 const [priceNow] = defineField('priceNow')
-const profit = ref(0);
-const valueInvested = ref(0);
+const profit = ref();
+const valueInvested = ref();
 
-const commissionRate = ref(1.25);
-const vatRatePercentage = ref(19);
-const breakEven = ref(0);
-const minFee = ref(1);
+const [commissionRate] = defineField('commissionRate');
+const [vatRatePercentage] = defineField('vatRatePercentage');
+const breakEven = ref();
+const [minFee] = defineField('minFee');
 const costs = ref(0)
 
 const commissionVisible = ref(false)
@@ -50,6 +55,8 @@ const fetchPrice = async (symbol: string) => {
     const data = await response.json();
     // Yahoo Finance returns the price in 'regularMarketPrice'
     priceNow.value = data.regularMarketPrice;
+    quantity.value = 1;
+
     toast.add({
       severity: 'success', // Severity options: 'success', 'info', 'warn', 'error', etc.
       summary: 'Success Message',
@@ -101,10 +108,10 @@ const calculate = () => {
 };
 
 const addRow = handleSubmit(() => {
-  console.log("hola");
   addSimulation({
     date: new Date(),
     company: selectedCompany.value.name ?? '',
+    code: selectedCompany.value.code ?? '',
     priceNow: priceNow.value,
     quantity: quantity.value,
     buyPrice: buyPrice.value,
@@ -118,7 +125,8 @@ const addRow = handleSubmit(() => {
 })
 
 const resetForm = () => {
-  quantity.value = 0;
+  quantity.value = 1;
+  buyPrice.value = 1;
   profit.value = 0;
   valueInvested.value = 0;
 }
@@ -204,6 +212,7 @@ const companies = ref([
                   currency="USD"
                   locale="en-US"
                   :readonly="true"
+                  placeholder="$0.00"
                   :class="{ 'opacity-50': loading }"
                 />
                 <FieldError>{{ errors.priceNow }}</FieldError>
@@ -216,6 +225,7 @@ const companies = ref([
                   id="quantity"
                   :min="0"
                   @input="(e) => { quantity = e.value; calculate(); }"
+                  placeholder="$0.00"
                 />
                 <FieldError>{{ errors.quantity }}</FieldError>
               </Field>
@@ -230,6 +240,7 @@ const companies = ref([
                   currency="USD"
                   locale="en-US"
                   @input="(e) => { buyPrice = e.value; calculate(); }"
+                  placeholder="$0.00"
                 />
                 <FieldError>{{ errors.buyPrice }}</FieldError>
               </Field>
@@ -244,6 +255,7 @@ const companies = ref([
                   currency="USD"
                   locale="en-US"
                   :readonly="true"
+                  placeholder="$0.00"
                 />
                 <ErrorMessage name="valueInvested" />
               </Field>
@@ -258,6 +270,7 @@ const companies = ref([
                   currency="USD"
                   locale="en-US"
                   :readonly="true"
+                  placeholder="$0.00"
                 />
                 <ErrorMessage name="breakEven" />
               </Field>
@@ -272,6 +285,7 @@ const companies = ref([
                   currency="USD"
                   locale="en-US"
                   :readonly="true"
+                  placeholder="$0.00"
                 />
                 <ErrorMessage name="profit" />
               </Field>
@@ -283,7 +297,7 @@ const companies = ref([
             </div>
           </div>
           
-          <div v-if="commissionVisible" class="flex md:flex-row flex-col w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
+          <div v-if="commissionVisible" class="flex md:flex-row flex-col w-full md:w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
             <!-- Min Fee -->
             <Field>
               <FieldLabel for="minimum-fee">Minimum Fee</FieldLabel>
@@ -293,6 +307,7 @@ const companies = ref([
                 mode="currency"
                 currency="USD"
                 locale="en-US"
+                :min=0
                 @input="(e) => { minFee = e.value; calculate(); }"
               />
               <ErrorMessage name="minFee" />

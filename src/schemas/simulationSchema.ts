@@ -8,4 +8,8 @@ export const simulationSchema = z.object({
     quantity: z.number({ error: '❌ Required' }).positive('Must be greater than 0').int('Must be an integer'),
     buyPrice: z.number({ error: '❌ Required' }).positive('Must be greater than 0'),
     priceNow: z.number({ error: '❌ Select a company first' }).positive('Fetch a stock price first'),
+    commissionRate: z.number({ error: '❌ Required' }).positive('Must be greater than 0'),
+    vatRatePercentage: z.number({ error: ' ❌ Required' }).positive('Must be greater than 0'),
+    minFee: z.number({ error: '❌ Required' }).positive('Must be greater than 0')
+
 })

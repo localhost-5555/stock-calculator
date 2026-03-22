@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import { computed } from 'vue'
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -19,7 +20,7 @@ const updateSimulations = async () => {
   for (const simulation of simulations.value) {
     try {
       // Fetch the price of the company
-      let price = await fetch(`http://localhost:3000?symbol=${simulation.company}`);
+      let price = await fetch(`http://localhost:3000?symbol=${simulation.code}`);
       if (!price.ok) throw new Error('Stock not found');
       const data = await price.json();
       
@@ -30,9 +31,19 @@ const updateSimulations = async () => {
     }
   }
 };
+
+const totalProfit = computed(() => 
+  simulations.value.reduce((acc, sim) => acc + sim.profit, 0)
+)
 </script>
 
 <template>
+  <div class="bg-slate-900 text-white p-4 rounded-md">
+    <h3 class="text-sm text-muted-foreground">Total Profit</h3>
+    <p :class="totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'" class="text-2xl font-bold">
+      {{ formatCurrency(totalProfit) }}
+    </p>
+  </div>
   <DataTable :value="simulations" scrollable scrollHeight="55vh" class="relative">
     <Button class="bg-emerald-500 hover:bg-emerald-400 absolute top-2 right-2 z-10 opacity-90" @click="updateSimulations">
       <i class="pi pi-refresh" style="font-size: 1rem"></i>
