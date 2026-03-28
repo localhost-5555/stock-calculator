@@ -5,6 +5,7 @@ export interface Simulation {
   id: number;
   date: Date;
   company: string;
+  code: string;
   priceNow: number;
   quantity: number;
   buyPrice: number;

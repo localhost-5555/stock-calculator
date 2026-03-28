@@ -1,4 +1,6 @@
 <script setup>
+import { useTheme } from '@/composables/useTheme'
+const { isDark, toggleDark } = useTheme()
 </script>
 
 <template>
@@ -8,5 +10,8 @@
         <h1 class="text-2xl md:text-3xl">
             Stock Calculator
         </h1>
+        <button class="bg-gray-100 dark:bg-neutral-700" @click="toggleDark()">
+            <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
+        </button>
     </div>
 </template>

@@ -174,10 +174,10 @@ const companies = ref([
 
 <template>
   <div class="w-full">
-    <form class="flex w-full flex-col gap-4" @submit.prevent>
+    <form class="flex w-full flex-col gap-3" @submit.prevent>
           <div class="flex flex-col gap-3">
 
-            <div class="flex md:flex-row flex-col items-end gap-4 bg-slate-900 text-white p-4 rounded-md">   
+            <div class="card flex md:flex-row flex-col items-end gap-4 p-4 rounded-md">   
 
               <Field>
                 <FieldLabel for="company">
@@ -297,7 +297,7 @@ const companies = ref([
             </div>
           </div>
           
-          <div v-if="commissionVisible" class="flex md:flex-row flex-col w-full md:w-fit gap-4 bg-slate-900 text-white p-4 rounded-md">
+          <div v-if="commissionVisible" class="card flex md:flex-row flex-col w-full gap-3 md:w-fit text-white p-4 rounded-md">
             <!-- Min Fee -->
             <Field>
               <FieldLabel for="minimum-fee">Minimum Fee</FieldLabel>
@@ -345,7 +345,7 @@ const companies = ref([
             </Field>
           </div>
 
-    <div class="flex flex-col md:flex-row gap-2 bg-slate-200 p-4 rounded-md font-bold">
+    <div class="flex flex-col bg-green-100 dark:bg-green-950 md:flex-row gap-2 p-2 rounded-b-md font-bold">
       <h3>
         Minimum fee: <span class="font-normal">{{ minFee }}</span>
       </h3>
@@ -355,9 +355,13 @@ const companies = ref([
       <h3>
         VAT(%): <span class="font-normal">{{ vatRatePercentage }}</span> 
       </h3>
-      <span class="text-blue-500 hover:underline hover:cursor-pointer" @click="commissionVisible = !commissionVisible" > 
+      <span v-if="!commissionVisible" class=" text-blue-400 hover:underline hover:cursor-pointer" @click="commissionVisible = !commissionVisible" > 
         <i class="pi pi-pen-to-square"></i>
-        Editar
+        Edit
+      </span>
+      <span v-else class=" text-red-400 hover:underline hover:cursor-pointer" @click="commissionVisible = !commissionVisible" > 
+        <i class="pi pi-times"></i>
+        Close
       </span>
     </div>
     </form>

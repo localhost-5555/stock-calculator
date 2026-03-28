@@ -35,14 +35,36 @@ const updateSimulations = async () => {
 const totalProfit = computed(() => 
   simulations.value.reduce((acc, sim) => acc + sim.profit, 0)
 )
+
+const totalInvested = computed(() => 
+  simulations.value.reduce((acc, sim) => acc + sim.valueInvested, 0)
+)
+
+const balance = computed(() => 
+  simulations.value.reduce((acc, sim) => acc + sim.valueInvested + sim.profit, 0)
+)
 </script>
 
 <template>
-  <div class="bg-slate-900 text-white p-4 rounded-md">
-    <h3 class="text-sm text-muted-foreground">Total Profit</h3>
-    <p :class="totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'" class="text-2xl font-bold">
-      {{ formatCurrency(totalProfit) }}
-    </p>
+  <div class="card flex gap-2 p-4 rounded-md">
+    <div class="mini-card">
+      <h3 class="text-sm">Total Profit</h3>
+      <p :class="totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'" class="text-2xl font-bold">
+        {{ formatCurrency(totalProfit) }}
+      </p>
+    </div>
+    <div class="mini-card">
+      <h3 class="text-sm">Total Invested</h3>
+      <p class="text-2xl font-bold">
+        {{ formatCurrency(totalInvested) }}
+      </p>
+    </div>
+    <div>
+      <h3 class="text-sm">Balance</h3>
+      <p class="text-2xl font-bold">
+        {{ formatCurrency(balance) }}
+      </p>
+    </div>
   </div>
   <DataTable :value="simulations" scrollable scrollHeight="55vh" class="relative">
     <Button class="bg-emerald-500 hover:bg-emerald-400 absolute top-2 right-2 z-10 opacity-90" @click="updateSimulations">
