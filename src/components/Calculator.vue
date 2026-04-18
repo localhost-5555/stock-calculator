@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { markets, COLOMBIAN_MARKETS, US_MARKETS } from '@/data/markets';
 import { addSimulation } from '@/composables/useSimulations';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button'
 import { useToast } from 'primevue/usetoast';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
 
-import { useForm } from 'vee-validate'
+import { useForm, ErrorMessage } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { simulationSchema } from '@/schemas/simulationSchema'
 
@@ -15,6 +16,17 @@ import {
   FieldLabel,
   FieldError,
 } from '@/components/ui/field'
+
+
+// State to track which market to show
+const currentMarket = ref('BVC');
+
+// Computed property to return the right list based on selection
+const companies = computed(() => {
+  if (currentMarket.value === 'BVC') return COLOMBIAN_MARKETS;
+  if (currentMarket.value === 'NYSE') return US_MARKETS; // The Tech/Finance list
+  return []; // For Favorites
+});
 
 const { handleSubmit, defineField, errors } = useForm({
   validationSchema: toTypedSchema(simulationSchema),
@@ -112,89 +124,63 @@ const addRow = handleSubmit(() => {
     date: new Date(),
     company: selectedCompany.value.name ?? '',
     code: selectedCompany.value.code ?? '',
-    priceNow: priceNow.value,
-    quantity: quantity.value,
-    buyPrice: buyPrice.value,
-    valueInvested: valueInvested.value,
-    breakEven: breakEven.value,
-    profit: profit.value,
-    minFee: minFee.value,
-    commissionRate: commissionRate.value,
-    vatRate: vatRatePercentage.value,
+    priceNow: priceNow.value ?? 0,
+    quantity: quantity.value ?? 0,
+    buyPrice: buyPrice.value ?? 0,
+    valueInvested: valueInvested.value ?? 0,
+    breakEven: breakEven.value ?? 0,
+    profit: profit.value ?? 0,
+    minFee: minFee.value ?? 0,
+    commissionRate: commissionRate.value ?? 0,
+    vatRate: vatRatePercentage.value ??0,
   });
+  resetForm();
 })
 
 const resetForm = () => {
+  priceNow.value = 1;
   quantity.value = 1;
   buyPrice.value = 1;
   profit.value = 0;
   valueInvested.value = 0;
 }
-
-const companies = ref([
-  {
-    label: 'Technology',
-    items: [
-      { name: 'IBM', code: 'IBM' },
-      { name: 'Oracle', code: 'ORCL' },
-      { name: 'Salesforce', code: 'CRM' },
-      { name: 'Dell Technologies', code: 'DELL' },
-      { name: 'HP Inc.', code: 'HPQ' },
-      { name: 'Cisco Systems', code: 'CSCO' },
-      { name: 'NVIDIA', code: 'NVDA' },
-      { name: 'Intel', code: 'INTC' },
-      { name: 'AMD', code: 'AMD' },
-      { name: 'Microsoft', code: 'MSFT' },
-      { name: 'Apple', code: 'AAPL' },
-      { name: 'Amazon', code: 'AMZN' },
-      { name: 'Google', code: 'GOOGL' },
-      { name: 'Facebook', code: 'FB' },
-      { name: 'Twitter', code: 'TWTR' },
-      { name: 'Netflix', code: 'NFLX' },
-      { name: 'Uber', code: 'UBER' },
-      { name: 'Lyft', code: 'LYFT' },
-      { name: 'Airbnb', code: 'ABNB' },
-      { name: 'Zoom', code: 'ZM' },
-    ]
-  },
-  {
-    label: 'Finance',
-    items: [
-      { name: 'JP Morgan Chase', code: 'JPM' },
-      { name: 'Bank of America', code: 'BAC' },
-      { name: 'Goldman Sachs', code: 'GS' },
-      { name: 'Morgan Stanley', code: 'MS' },
-      { name: 'Citigroup', code: 'C' },
-      { name: 'American Express', code: 'AXP' },
-      { name: 'BlackRock', code: 'BLK' },
-    ]
-  },
-]);
 </script>
 
 <template>
   <div class="w-full">
+
+  <div class="flex gap-2 mb-4 px-4 overflow-x-scroll">
+    <Button 
+      v-for="market in markets"
+      :key="market.value"
+      :class="{'active': currentMarket === market.value }"
+      @click="currentMarket = market.value"
+      size="small"
+    >
+      {{ market.label }}
+    </Button>
+  </div>
+
     <form class="flex w-full flex-col gap-3" @submit.prevent>
           <div class="flex flex-col gap-3">
 
-            <div class="card flex md:flex-row flex-col items-end gap-4 p-4 rounded-md">   
+            <div class="card flex md:flex-row flex-col gap-4 p-4 rounded-md">   
 
               <Field>
-                <FieldLabel for="company">
-                  Company
-                </FieldLabel>
+                <FieldLabel for="company">Company</FieldLabel>
                 <Select
                   v-model="selectedCompany"
                   :options="companies"
                   optionLabel="name"
                   optionGroupLabel="label"
                   optionGroupChildren="items"
-                  placeholder="Companies"
+                  filter
+                  placeholder="Select a Stock"
                   class="w-full"
                   @change="selectedCompany && fetchPrice(selectedCompany.code)"
                 >
                   <template #optiongroup="slotProps">
-                    <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase">
+                    <div class="flex items-center font-bold text-primary uppercase text-xs border-b border-gray-100 pb-1">
                       {{ slotProps.option.label }}
                     </div>
                   </template>

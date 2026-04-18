@@ -11,5 +11,4 @@ export const simulationSchema = z.object({
     commissionRate: z.number({ error: '❌ Required' }).positive('Must be greater than 0'),
     vatRatePercentage: z.number({ error: ' ❌ Required' }).positive('Must be greater than 0'),
     minFee: z.number({ error: '❌ Required' }).positive('Must be greater than 0')
-
 })

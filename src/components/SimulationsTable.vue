@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { simulations, deleteSimulation } from '@/composables/useSimulations';
-import { Trash2 } from 'lucide-vue-next';
+import { Trash2, Settings2, Settings2Icon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -46,7 +46,7 @@ const balance = computed(() =>
 </script>
 
 <template>
-  <div class="card flex gap-2 p-4 rounded-md">
+  <div class="card flex gap-2 p-4 rounded-md overflow-x-scroll">
     <div class="mini-card">
       <h3 class="text-sm">Total Profit</h3>
       <p :class="totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'" class="text-2xl font-bold">
@@ -111,9 +111,12 @@ const balance = computed(() =>
     </template>
 
     <Column header="">
-      <template #body="{ data }">
-        <Button variant="ghost" size="icon" @click="deleteSimulation(data.id)">
+      <template class="flex gap-2" #body="{ data }">
+        <Button class="hover:border-red-500" variant="ghost" size="icon" @click="deleteSimulation(data.id)">
           <Trash2 class="h-4 w-4 text-red-500" />
+        </Button>
+        <Button class="hover:border-sky-500" variant="ghost" size="icon" @click="editSimulation(data.id)">
+          <Settings2Icon class="h-4 w-4 text-sky-500" />
         </Button>
       </template>
     </Column>

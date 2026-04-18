@@ -55,6 +55,7 @@ body {
 }
 
 button {
+  @apply border-2;
   border-radius: 8px;
   padding: 0.6em 1.2em;
   font-size: 1em;
@@ -64,13 +65,13 @@ button {
   transition: border-color 0.25s;
 }
 
-button:hover {
-  border-color: #6bff9f;
-}
+/* button:hover {
+  @apply border-emerald-400;
+} */
 
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.active {
+  @apply bg-emerald-500 hover:bg-emerald-400;
+  transition: linear 0.2s;
 }
 
 .card {
