@@ -4,7 +4,26 @@ import { Trash2, Settings2, Settings2Icon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+import { useDialog } from 'primevue/usedialog';
+import DynamicDialog from 'primevue/dynamicdialog';
+import DynamicDialogEdit from './DynamicDialogEdit.vue';
+
+const dialog = useDialog();
+
+const openDialog = () => {
+  dialog.open(DynamicDialogEdit, {
+    props: {
+      header: 'Edit simulation',
+      style: { width: '50vw' },
+      modal: true
+    },
+    onClose: (options) => {
+      console.log(options.data); // Data from closed dialog
+    }
+  });
+};
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -110,16 +129,21 @@ const balance = computed(() =>
       </div>
     </template>
 
-    <Column header="">
-      <template class="flex gap-2" #body="{ data }">
+    <Column class="flex gap-2">
+      <template #body="{ data }">
         <Button class="hover:border-red-500" variant="ghost" size="icon" @click="deleteSimulation(data.id)">
           <Trash2 class="h-4 w-4 text-red-500" />
         </Button>
-        <Button class="hover:border-sky-500" variant="ghost" size="icon" @click="editSimulation(data.id)">
+        <Button class="hover:border-sky-500" variant="ghost" size="icon" @click="openDialog()">
           <Settings2Icon class="h-4 w-4 text-sky-500" />
         </Button>
       </template>
     </Column>
   </DataTable>
-  
+
+  <div>
+    <DynamicDialog />
+  </div>
 </template>
+
+
