@@ -74,6 +74,10 @@ button {
   transition: linear 0.2s;
 }
 
+.input {
+  @apply border rounded px-3 py-1.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring;
+}
+
 .card {
   padding: 1em;
   background-color: var(--card);

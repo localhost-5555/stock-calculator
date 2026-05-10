@@ -61,6 +61,7 @@ const fetchPrice = async (symbol: string) => {
   
   loading.value = true;
   try {
+    console.log('fetching price for', symbol);
     const response = await fetch(`http://localhost:3000?symbol=${symbol}`);
     if (!response.ok) throw new Error('Stock not found');
     
@@ -138,7 +139,7 @@ const addRow = handleSubmit(() => {
 })
 
 const resetForm = () => {
-  priceNow.value = 1;
+  // priceNow.value = 1;
   quantity.value = 1;
   buyPrice.value = 1;
   profit.value = 0;

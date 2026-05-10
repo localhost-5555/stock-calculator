@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { simulations, deleteSimulation } from '@/composables/useSimulations';
-import { Trash2, Settings2, Settings2Icon } from 'lucide-vue-next';
+import { simulations, deleteSimulation, updateStorage } from '@/composables/useSimulations';
+import { Trash2, Settings2Icon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { useDialog } from 'primevue/usedialog';
 import DynamicDialog from 'primevue/dynamicdialog';
@@ -12,15 +12,20 @@ import DynamicDialogEdit from './DynamicDialogEdit.vue';
 
 const dialog = useDialog();
 
-const openDialog = () => {
+const openDialog = (id: number) => {
   dialog.open(DynamicDialogEdit, {
     props: {
       header: 'Edit simulation',
       style: { width: '50vw' },
       modal: true
     },
+    data: {
+      simulationId: id
+    },
     onClose: (options) => {
-      console.log(options.data); // Data from closed dialog
+      if (options?.data) {
+        console.log(options.data);
+      }
     }
   });
 };
@@ -41,10 +46,12 @@ const updateSimulations = async () => {
       // Fetch the price of the company
       let price = await fetch(`http://localhost:3000?symbol=${simulation.code}`);
       if (!price.ok) throw new Error('Stock not found');
+      
       const data = await price.json();
       
       // Update the price of the simulation
-      simulation.priceNow = data.regularMarketPrice;
+      updateStorage(data);
+      // simulation.priceNow = data.regularMarketPrice;
     } catch (error) {
       console.error("Error updating simulation: ", error);
     }
@@ -134,7 +141,7 @@ const balance = computed(() =>
         <Button class="hover:border-red-500" variant="ghost" size="icon" @click="deleteSimulation(data.id)">
           <Trash2 class="h-4 w-4 text-red-500" />
         </Button>
-        <Button class="hover:border-sky-500" variant="ghost" size="icon" @click="openDialog()">
+        <Button class="hover:border-sky-500" variant="ghost" size="icon" @click="openDialog(data.id)">
           <Settings2Icon class="h-4 w-4 text-sky-500" />
         </Button>
       </template>
@@ -142,7 +149,7 @@ const balance = computed(() =>
   </DataTable>
 
   <div>
-    <DynamicDialog />
+    <DynamicDialog/>
   </div>
 </template>
 

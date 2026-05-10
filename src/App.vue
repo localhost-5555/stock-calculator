@@ -13,4 +13,3 @@ import Toast from 'primevue/toast';
     <SimulationsTable></SimulationsTable>
   </div>
 </template>
-
