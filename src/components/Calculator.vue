@@ -33,7 +33,7 @@ const { handleSubmit, defineField, errors } = useForm({
   initialValues: {
     commissionRate: 1.25,
     vatRatePercentage: 19,
-    minFee: 1,
+    minFee: 7500,
   }
 })
 
@@ -61,7 +61,6 @@ const fetchPrice = async (symbol: string) => {
   
   loading.value = true;
   try {
-    console.log('fetching price for', symbol);
     const response = await fetch(`http://localhost:3000?symbol=${symbol}`);
     if (!response.ok) throw new Error('Stock not found');
     
@@ -101,11 +100,11 @@ const calculate = () => {
   let sellFee = minFee.value;
 
   // Logic: If trade > 1000, use 0.125% + VAT, otherwise use flat fee
-  if (totalBuy > 1000) {
+  if (totalBuy > 5000000) {
     buyFee = (totalBuy * (commissionRate.value/100)) * vatRate;
   }
   
-  if (totalSell > 1000) {
+  if (totalSell > 5000000) {
     sellFee = (totalSell * (commissionRate.value/100)) * vatRate;
   }
 
@@ -113,7 +112,7 @@ const calculate = () => {
   const totalCosts = Number(buyFee + sellFee);
   costs.value = Number(totalCosts.toFixed(2)); // Keep it as a number
 
-  valueInvested.value = Number(totalBuy.toFixed(2))+ Number(totalCosts.toFixed(2));
+  valueInvested.value = Number(totalBuy.toFixed(2)) + Number(totalCosts.toFixed(2));
   breakEven.value = (valueInvested.value+costs.value)/quantity.value;
   
   // 4. Final Profit Calculation
@@ -135,6 +134,7 @@ const addRow = handleSubmit(() => {
     commissionRate: commissionRate.value ?? 0,
     vatRate: vatRatePercentage.value ??0,
   });
+  console.log("Total costs...")
   resetForm();
 })
 

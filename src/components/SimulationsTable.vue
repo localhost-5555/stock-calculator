@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { simulations, deleteSimulation, updateStorage } from '@/composables/useSimulations';
+import { simulations, deleteSimulation, updateSimulationPrice } from '@/composables/useSimulations';
 import { Trash2, Settings2Icon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import DataTable from 'primevue/datatable';
@@ -13,10 +13,12 @@ import DynamicDialogEdit from './DynamicDialogEdit.vue';
 const dialog = useDialog();
 
 const openDialog = (id: number) => {
+  const simulation = simulations.value.find(s => s.id === id);
+
   dialog.open(DynamicDialogEdit, {
     props: {
-      header: 'Edit simulation',
-      style: { width: '50vw' },
+      header: simulation?.company, // Pass company name as header
+      style: { width: '50vw'},
       modal: true
     },
     data: {
@@ -40,18 +42,14 @@ const formatCurrency = (value: number) => {
 const formatPercent = (value: number) => `${value}%`;
 
 const updateSimulations = async () => {
-  // Update the price of each simulation
   for (const simulation of simulations.value) {
     try {
-      // Fetch the price of the company
       let price = await fetch(`http://localhost:3000?symbol=${simulation.code}`);
       if (!price.ok) throw new Error('Stock not found');
-      
       const data = await price.json();
-      
-      // Update the price of the simulation
-      updateStorage(data);
-      // simulation.priceNow = data.regularMarketPrice;
+
+      updateSimulationPrice(simulation.id, data.regularMarketPrice);
+      console.info("UPDATED? SIMULATION ID: ",simulation.id)
     } catch (error) {
       console.error("Error updating simulation: ", error);
     }

@@ -2,14 +2,6 @@
   <div class="flex flex-col gap-4 p-2">
     <div class="grid grid-cols-2 gap-4">
       <div class="flex flex-col gap-1">
-        <label class="text-sm text-muted-foreground">Company</label>
-        <input v-model="form.company" class="input" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-sm text-muted-foreground">Code</label>
-        <input v-model="form.code" class="input" />
-      </div>
-      <div class="flex flex-col gap-1">
         <label class="text-sm text-muted-foreground">Quantity</label>
         <input v-model.number="form.quantity" type="number" class="input" />
       </div>

@@ -30,15 +30,18 @@ const saveToStorage = (data: Simulation[]) => {
   localStorage.setItem('simulations', JSON.stringify(data));
 };
 
-export const updateStorage = (simulationId): Simulation[] => {
-  console.log("Simulation Id: ",simulationId)
-  try {
-    const stored = localStorage.getItem('simulations');
-    console.log("Update storage function is not functional yet")
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+export const updateSimulationPrice = (id: number, priceNow: number): void => {
+  const index = simulations.value.findIndex(s => s.id === id);
+  if (index === -1) return;
+
+  const sim = simulations.value[index];
+  sim.priceNow = priceNow;
+  
+  // Recalculate derived fields
+  sim.breakEven = (sim.valueInvested + (sim.minFee || 0)) / sim.quantity;
+  sim.profit = (sim.priceNow - sim.breakEven) * sim.quantity;
+
+  saveToStorage(simulations.value);
 };
 
 export const updateSimulation = (id: number, updates: Partial<Simulation>) => {
